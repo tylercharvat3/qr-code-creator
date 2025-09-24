@@ -5,6 +5,21 @@ import java.nio.charset.StandardCharsets;
 
 public class QR {
     public static File GenerateQRCode(String data) {
+        String rawDataBits = GetRawDataBits(data);
+        for (int i = 0; i < rawDataBits.length(); i++) {
+            System.out.print(rawDataBits.substring(i, i + 1));
+            if (i % 8 == 7) {
+                System.out.print(" ");
+            }
+        }
+        return new File("C:/");
+    }
+
+    public static byte[] GetDataBytes(String data) {
+        return new byte[] {};
+    }
+
+    public static String GetRawDataBits(String data) { // Working for now
         int charCount = data.length();
         String totalString = "";
         String modeIndicator = "0100"; // bytes
@@ -18,9 +33,7 @@ public class QR {
         // pad to 9 bits
         byteCharCount = padByteString(byteCharCount, 9);
         totalString += byteCharCount;
-        System.out.print(modeIndicator + " " + byteCharCount);
         for (int i = 0; i < binaryData.length; i++) {
-            System.out.print(" " + binaryData[i]);
             totalString += binaryData[i];
         }
         // at this point binaryData contains mode indicator, character count, and data
@@ -30,31 +43,26 @@ public class QR {
         // next 9 bits: charCount in binary
 
         // 152 bits required
-        String terminator = "0000";
-        totalString += terminator;
-        int charsToGo = 8 - (totalString.length() % 8);
-        for (int i = 0; i < charsToGo; i++) {
+        int bitsToGo = 152 - totalString.length();
+        if (bitsToGo > 4) {
+            totalString += "0000";
+        } else if (bitsToGo < 4) {
+            for (int i = 0; i < bitsToGo; i++) {
+                totalString += "0";
+            }
+        }
+        while (totalString.length() % 8 != 0) {
             totalString += "0";
         }
-        System.out.println("Is string divisible by 8:" + (totalString.length() % 8));
-        int bitsToAdd = (152 - totalString.length()) / 8;
-        // add filler at end
-        for (int i = 0; i < bitsToAdd; i++) {
+        int padBytesToGo = (152 - totalString.length()) / 8;
+        for (int i = 0; i < padBytesToGo; i++) {
             if (i % 2 == 0) {
-                totalString += "11101100";
+                totalString += "11101110";
             } else {
                 totalString += "00010001";
             }
         }
-        System.out.println("Length: " + totalString.length());
-        // raw data bits all done
-        String rawDataBits = totalString;
-
-        return new File("C:/");
-    }
-
-    public static byte[] GetDataBytes(String data) {
-        return new byte[] {};
+        return (totalString);
     }
 
     public static String padByteString(String bytes, int expectedSize) {
