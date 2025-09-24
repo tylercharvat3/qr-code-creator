@@ -15,10 +15,6 @@ public class QR {
         return new File("C:/");
     }
 
-    public static byte[] GetDataBytes(String data) {
-        return new byte[] {};
-    }
-
     public static String GetRawDataBits(String data) { // Working for now
         int charCount = data.length();
         String totalString = "";
@@ -63,6 +59,10 @@ public class QR {
             }
         }
         return (totalString);
+    }
+
+    public static String GetECCDataBits(String rawDataBits) {
+        return "";
     }
 
     public static String padByteString(String bytes, int expectedSize) {
